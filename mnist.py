@@ -144,7 +144,6 @@ y_test = tf.keras.utils.to_categorical(y_test, params.num_classes)
 base_model = create_model(input_shape, data_format)
 x = base_model.output
 
-l = tf.keras.layers
 if params.use_arcloss:
     aux_input = tf.keras.Input(shape=(params.num_classes,))
     predictions = ArcLoss(n_classes=params.num_classes, emb_size=params.embedding_size, name='arclosslayer')(
