@@ -1,0 +1,11 @@
+{
+  "data_format": null,
+  "learning_rate": 0.1,
+  "batch_size": 128,
+  "num_classes": 10,
+  "embedding_size": 512,
+  "epochs": 20,
+  "log_dir": "logs_mnist",
+  "use_arcloss": false,
+  "fine_tune": false
+}
