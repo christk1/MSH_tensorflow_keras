@@ -13,7 +13,7 @@ Features:
 4. Tensorboard visualizations
 
 ![alt-text-1](tmp/softmax_only.png) ![alt-text-2](tmp/softmax_and_arcloss.png)  
-<sub>2D Embedding visualization(PCA) with softmax</sub> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<sub>2D Embedding visualization(PCA) with softmax</sub> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
  <sub>2D Embedding visualization(PCA) with softmax + arcloss</sub>
 
 #### Resources ####
