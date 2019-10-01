@@ -15,16 +15,16 @@ topology between training with softmax and softmax along with arcloss.
 ```
 python3 mnist.py
 ```
-Visualizations of scalars and embeddings using:
+Visualization of scalars and embeddings using:
 ```tensorboard --logdir path/to/logs_mnist```
 ##### Tensorflow 2.0: #####
 ```
 python3 mnist_tf2.0.py
 ```
-Visualization of Scalars using: 
+Visualization of scalars using: 
 ```tensorboard --logdir path/to/logs_mnist```
 
-For Embedding visualization upload the two .tsv files generated under "logs_mnist" directory to [Embedding Projector](https://projector.tensorflow.org/)
+For embeddings visualization upload the two .tsv files generated under "logs_mnist" directory to [Embedding Projector](https://projector.tensorflow.org/)
 
 ![alt-text-1](tmp/softmax_only.png) ![alt-text-2](tmp/softmax_and_arcloss.png)  
 <sub>2D Embedding visualization(PCA) with softmax</sub> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
