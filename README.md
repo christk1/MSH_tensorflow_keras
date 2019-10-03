@@ -26,7 +26,7 @@ Visualization of scalars using:
 
 For embeddings visualization upload the two .tsv files generated under "logs_mnist" directory to [Embedding Projector](https://projector.tensorflow.org/)
 
-![alt-text-1](tmp/softmax_only.png) ![alt-text-2](tmp/softmax_and_arcloss.png)  
+![alt-text-1](tmp/softmaximg.png) ![alt-text-2](tmp/arclossimg.png)  
 <sub>2D Embedding visualization(PCA) with softmax</sub> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
  <sub>2D Embedding visualization(PCA) with softmax + arcloss</sub>
 
