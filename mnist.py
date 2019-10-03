@@ -105,29 +105,29 @@ def create_model(input_shape, data_format):
     return model
 
 
-# input image dimensions
-img_rows, img_cols = 28, 28
-
 # the data, split between train and test sets
 (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
+
+# input image dimensions
+img_rows, img_cols = 32, 32
+x_test = np.pad(x_test, ((0, 0), (2, 2), (2, 2)), mode='constant')
+x_test = np.squeeze(x_test)
+x_train = np.pad(x_train, ((0, 0), (2, 2), (2, 2)), mode='constant')
+x_train = np.squeeze(x_train)
 
 if data_format == 'channels_first':
     x_train = x_train.reshape(x_train.shape[0], 1, img_rows, img_cols)
     x_test = x_test.reshape(x_test.shape[0], 1, img_rows, img_cols)
     input_shape = (1, img_rows, img_cols)
-    axis = (2, 3)
 else:
     x_train = x_train.reshape(x_train.shape[0], img_rows, img_cols, 1)
     x_test = x_test.reshape(x_test.shape[0], img_rows, img_cols, 1)
     input_shape = (img_rows, img_cols, 1)
-    axis = (1, 2)
 
 x_train = x_train.astype('float32')
 x_test = x_test.astype('float32')
-x_train = misc.normalize_meanstd(x_train, axis)
-x_test = misc.normalize_meanstd(x_test, axis)
-# x_train /= 255
-# x_test /= 255
+x_train = tf.keras.applications.vgg16.preprocess_input(x_train, mode='tf')
+x_test = tf.keras.applications.vgg16.preprocess_input(x_test, mode='tf')
 print('x_train shape:', x_train.shape)
 print(x_train.shape[0], 'train samples')
 print(x_test.shape[0], 'test samples')
@@ -140,17 +140,24 @@ with open(join(params.log_dir, 'metadata.tsv'), 'w') as f:
 y_train = tf.keras.utils.to_categorical(y_train, params.num_classes)
 y_test = tf.keras.utils.to_categorical(y_test, params.num_classes)
 
-# with tf.device('/cpu:0'):
-base_model = create_model(input_shape, data_format)
+input_tensor = tf.keras.layers.Input(shape=input_shape)
+base_model = tf.keras.applications.VGG16(input_tensor=input_tensor, include_top=False, weights=None)
+
 x = base_model.output
 
 if params.use_arcloss:
+    x = tf.keras.layers.Flatten()(x)
+    x = tf.keras.layers.Dense(params.embedding_size, activation='relu', name='feats0')(x)
+    x = tf.keras.layers.Dense(params.embedding_size, activation='relu', name='features')(x)
     aux_input = tf.keras.Input(shape=(params.num_classes,))
     predictions = ArcLoss(n_classes=params.num_classes, emb_size=params.embedding_size, name='arclosslayer')(
         [x, aux_input])
     predictions = tf.keras.activations.softmax(predictions)
     model = tf.keras.models.Model(inputs=[base_model.input, aux_input], outputs=predictions)
 else:
+    x = tf.keras.layers.Flatten()(x)
+    x = tf.keras.layers.Dense(params.embedding_size, activation='relu', name='feats0')(x)
+    x = tf.keras.layers.Dense(params.embedding_size, activation='relu', name='features')(x)
     predictions = tf.keras.layers.Dense(params.num_classes, activation='softmax')(x)
     model = tf.keras.models.Model(inputs=base_model.input, outputs=predictions)
 
