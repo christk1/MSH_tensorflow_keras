@@ -57,9 +57,9 @@ class ArcLoss(tf.keras.layers.Layer):
         emb, labels = inps
 
         # normalize feature
-        emb = tf.nn.l2_normalize(emb, axis=1) * self.s  # (n, 128)
+        emb = tf.nn.l2_normalize(emb, axis=1) * self.s  # (n, 512)
         # normalize weights
-        W = tf.nn.l2_normalize(self.kernel, axis=0)  # (128, 10)
+        W = tf.nn.l2_normalize(self.kernel, axis=0)  # (512, 10)
 
         fc7 = tf.matmul(emb, W)  # n x 10
         # pick elements along axis 1
@@ -83,26 +83,6 @@ class ArcLoss(tf.keras.layers.Layer):
 
     def compute_output_shape(self, input_shape):
         return None, self.num_classes
-
-
-def create_model(input_shape, data_format):
-    """Model to recognize digits in the MNIST dataset."""
-
-    l = tf.keras.layers
-
-    inputs = tf.keras.Input(shape=input_shape)
-
-    x = l.Conv2D(32, 3, activation=tf.nn.relu, input_shape=input_shape, data_format=data_format)(inputs)
-    x = l.Conv2D(64, 3, activation=tf.nn.relu, data_format=data_format)(x)
-    x = l.MaxPooling2D(pool_size=(2, 2), data_format=data_format)(x)
-    x = l.Dropout(0.25)(x)
-    x = l.Flatten()(x)
-    x = l.Dense(params.embedding_size, activation='relu', name="features")(x)
-    x = l.Dropout(0.5)(x)
-
-    model = tf.keras.models.Model(inputs=inputs, outputs=x)
-
-    return model
 
 
 # the data, split between train and test sets

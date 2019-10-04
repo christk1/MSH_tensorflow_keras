@@ -4,8 +4,8 @@
   "batch_size": 128,
   "num_classes": 10,
   "embedding_size": 512,
-  "epochs": 20,
+  "epochs": 15,
   "log_dir": "logs_mnist",
-  "use_arcloss": false,
+  "use_arcloss": true,
   "fine_tune": false
 }
