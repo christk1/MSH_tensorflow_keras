@@ -85,26 +85,6 @@ class ArcLoss(tf.keras.layers.Layer):
         return None, self.num_classes
 
 
-def create_model(input_shape, data_format):
-    """Model to recognize digits in the MNIST dataset."""
-
-    l = tf.keras.layers
-
-    inputs = tf.keras.Input(shape=input_shape)
-
-    x = l.Conv2D(32, 3, activation=tf.nn.relu, input_shape=input_shape, data_format=data_format)(inputs)
-    x = l.Conv2D(64, 3, activation=tf.nn.relu, data_format=data_format)(x)
-    x = l.MaxPooling2D(pool_size=(2, 2), data_format=data_format)(x)
-    x = l.Dropout(0.25)(x)
-    x = l.Flatten()(x)
-    x = l.Dense(params.embedding_size, activation='relu', name="features")(x)
-    x = l.Dropout(0.5)(x)
-
-    model = tf.keras.models.Model(inputs=inputs, outputs=x)
-
-    return model
-
-
 # the data, split between train and test sets
 (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
 
