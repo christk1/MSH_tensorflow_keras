@@ -7,8 +7,8 @@ topology between training with softmax and softmax along with arcloss.
 
 ### Features: ###
 1. softmax training
-2. arcloss training
-3. fine-tuning of softmax with arcloss
+2. arcloss+softmax training
+3. fine-tuning of softmax with arcloss+softmax
 4. Tensorboard visualizations
 
 ##### Tensorflow 1.14: #####
@@ -26,7 +26,7 @@ Visualization of scalars using:
 
 For embeddings visualization upload the two .tsv files generated under "logs_mnist" directory to [Embedding Projector](https://projector.tensorflow.org/)
 
-2D Embedding visualization(PCA) with softmax             |  2D Embedding visualization(PCA) with softmax + arcloss
+2D Embedding visualization(PCA) with softmax training             |  2D Embedding visualization(PCA) with arcloss + softmax training
 :-------------------------:|:-------------------------:
 ![](tmp/softmaximg.png)  |  ![](tmp/arclossimg.png)
 
