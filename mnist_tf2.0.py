@@ -57,9 +57,9 @@ class ArcLoss(tf.keras.layers.Layer):
         emb, labels = inps
 
         # normalize feature
-        emb = tf.nn.l2_normalize(emb, axis=1) * self.s  # (n, 128)
+        emb = tf.nn.l2_normalize(emb, axis=1) * self.s  # (n, 512)
         # normalize weights
-        W = tf.nn.l2_normalize(self.kernel, axis=0)  # (128, 10)
+        W = tf.nn.l2_normalize(self.kernel, axis=0)  # (512, 10)
 
         fc7 = tf.matmul(emb, W)  # n x 10
         # pick elements along axis 1
