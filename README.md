@@ -19,7 +19,7 @@ Visualization of scalars and embeddings using:
 ```tensorboard --logdir path/to/logs_mnist```
 ##### Tensorflow 2.0: #####
 ```
-python3 mnist_tf2.0.py
+python3 mnist.py
 ```
 Visualization of scalars using: 
 ```tensorboard --logdir path/to/logs_mnist```

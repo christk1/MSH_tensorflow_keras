@@ -3,8 +3,9 @@ import misc
 import argparse
 from os import makedirs
 from os.path import exists, join, isfile
+import io
 import numpy as np
-from tensorboard.plugins import projector
+from distutils.version import StrictVersion
 
 config = tf.compat.v1.ConfigProto()
 config.gpu_options.allow_growth = True
@@ -72,6 +73,7 @@ class ArcLoss(tf.keras.layers.Layer):
         diff = tf.expand_dims(diff, 1)
         body = tf.multiply(labels, diff)
         fc7 = fc7 + body
+        fc7 = tf.nn.softmax(fc7)
 
         return fc7
 
@@ -114,13 +116,9 @@ print('x_train shape:', x_train.shape)
 print(x_train.shape[0], 'train samples')
 print(x_test.shape[0], 'test samples')
 
-# save class labels to disk to color data points in TensorBoard accordingly
-with open(join(params.log_dir, 'metadata.tsv'), 'w') as f:
-    np.savetxt(f, y_test)
-
 # convert class vectors to binary class matrices
-y_train = tf.keras.utils.to_categorical(y_train, params.num_classes)
-y_test = tf.keras.utils.to_categorical(y_test, params.num_classes)
+y_train_cat = tf.keras.utils.to_categorical(y_train, params.num_classes)
+y_test_cat = tf.keras.utils.to_categorical(y_test, params.num_classes)
 
 input_tensor = tf.keras.layers.Input(shape=input_shape)
 base_model = tf.keras.applications.VGG16(input_tensor=input_tensor, include_top=False, weights=None)
@@ -132,8 +130,8 @@ if params.use_arcloss:
     x = tf.keras.layers.Dense(params.embedding_size, activation='relu', name='feats0')(x)
     x = tf.keras.layers.Dense(params.embedding_size, name='features')(x)
     aux_input = tf.keras.Input(shape=(params.num_classes,))
-    predictions = ArcLoss(n_classes=params.num_classes, name='arclosslayer')([x, aux_input])
-    predictions = tf.keras.activations.softmax(predictions)
+    predictions = ArcLoss(n_classes=params.num_classes, m=params.arc_m, s=params.arc_s, name='arclosslayer')(
+        [x, aux_input])
     model = tf.keras.models.Model(inputs=[base_model.input, aux_input], outputs=predictions)
 else:
     x = tf.keras.layers.Flatten()(x)
@@ -153,6 +151,7 @@ if isfile(Weights_path):
 else:
     print("error in loading weights.")
 
+model.summary()
 model.compile(loss=tf.keras.losses.categorical_crossentropy,
               optimizer=tf.keras.optimizers.Adadelta(lr=params.learning_rate),
               metrics=['accuracy'])
@@ -162,42 +161,57 @@ for i, layer in enumerate(model.layers):
     print(i, layer.name)
 
 if params.use_arcloss:
-    x_inps = [x_train, y_train]
-    x_test_inps = [x_test, y_test]
+    x_inps = [x_train, y_train_cat]
+    x_test_inps = [x_test, y_test_cat]
 else:
     x_inps = x_train
     x_test_inps = x_test
 
 callbacks = misc.get_callbacks(log_dir=params.log_dir)
 
-model.fit(x_inps, y_train,
+model.fit(x_inps, y_train_cat,
           batch_size=params.batch_size,
           epochs=epoch_write,
           initial_epoch=epoch,
           callbacks=callbacks,
           verbose=1,
-          validation_data=(x_test_inps, y_test))
-score = model.evaluate(x_test_inps, y_test, verbose=0)
+          validation_data=(x_test_inps, y_test_cat))
+score = model.evaluate(x_test_inps, y_test_cat, verbose=0)
 print('Test loss:', score[0])
 print('Test accuracy:', score[1])
 
-# the following code replaces embedding visualization of tf.keras.callbacks.TensorBoard
-# because it does not save checkpoints as in keras.callbacks.TensorBoard
+# make the predictions in test images and write .tsv files
 side_model = tf.keras.models.Model(inputs=model.input, outputs=model.get_layer('features').output)
 feats = side_model.predict(x_test_inps)
 feats /= np.linalg.norm(feats, axis=1, keepdims=True)
 
-nofembs = feats.shape[0]
-"""write checkpoints with embeddings"""
-features = tf.Variable(feats, name='features')
-with tf.Session() as sess:
-    saver = tf.compat.v1.train.Saver([features])
+if StrictVersion(tf.__version__) < StrictVersion('2.0'):
+    from tensorboard.plugins import projector
 
-    sess.run(features.initializer)
-    saver.save(sess, join(params.log_dir, 'images_10_classes.ckpt'))
+    # save class labels to disk to color data points in TensorBoard accordingly
+    with open(join(params.log_dir, 'metadata.tsv'), 'w') as f:
+        np.savetxt(f, y_test)
 
-    config = projector.ProjectorConfig()
-    embedding = config.embeddings.add()
-    embedding.tensor_name = features.name
-    embedding.metadata_path = 'metadata.tsv'
-    projector.visualize_embeddings(tf.compat.v1.summary.FileWriter(params.log_dir), config)
+    nofembs = feats.shape[0]
+    """write checkpoints with embeddings"""
+    features = tf.Variable(feats, name='features')
+    with tf.Session() as sess:
+        saver = tf.compat.v1.train.Saver([features])
+
+        sess.run(features.initializer)
+        saver.save(sess, join(params.log_dir, 'images_10_classes.ckpt'))
+
+        config = projector.ProjectorConfig()
+        embedding = config.embeddings.add()
+        embedding.tensor_name = features.name
+        embedding.metadata_path = 'metadata.tsv'
+        projector.visualize_embeddings(tf.compat.v1.summary.FileWriter(params.log_dir), config)
+else:
+    out_v = io.open('logs_mnist/vecs.tsv', 'w', encoding='utf-8')
+    out_m = io.open('logs_mnist/meta.tsv', 'w', encoding='utf-8')
+    for cntr, number in enumerate(y_test):
+        vec = feats[cntr]
+        out_m.write(str(number) + "\n")
+        out_v.write('\t'.join([str(x) for x in vec]) + "\n")
+    out_v.close()
+    out_m.close()
