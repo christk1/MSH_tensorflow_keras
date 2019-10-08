@@ -105,8 +105,11 @@ else:
 
 x_train = x_train.astype('float32')
 x_test = x_test.astype('float32')
-x_train = tf.keras.applications.vgg16.preprocess_input(x_train, mode='tf')
-x_test = tf.keras.applications.vgg16.preprocess_input(x_test, mode='tf')
+# global standardizing
+x_train_mean = np.mean(x_train)
+x_train_std = np.std(x_train)
+x_train = (x_train - x_train_mean) / x_train_std
+x_test = (x_test - x_train_mean) / x_train_std
 print('x_train shape:', x_train.shape)
 print(x_train.shape[0], 'train samples')
 print(x_test.shape[0], 'test samples')
