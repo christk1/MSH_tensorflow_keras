@@ -19,8 +19,10 @@ def get_callbacks(log_dir):
 def normalize_meanstd(a, axis=None):
     # axis param denotes axes along which mean & std reductions are to be performed
     mean = np.mean(a, axis=axis, keepdims=True)
+    print(mean.shape)
     std = np.sqrt(((a - mean) ** 2).mean(axis=axis, keepdims=True))
-    return (a - mean) / std
+    image_batch = (a - mean) / std
+    return image_batch, mean, std
 
 
 class Params:

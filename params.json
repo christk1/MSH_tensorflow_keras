@@ -6,6 +6,6 @@
   "embedding_size": 512,
   "epochs": 15,
   "log_dir": "logs_mnist",
-  "use_arcloss": true,
+  "use_arcloss": false,
   "fine_tune": false
 }

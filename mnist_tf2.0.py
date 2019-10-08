@@ -36,9 +36,8 @@ with open("epochs_ckpts.txt", "w") as f:
 
 class ArcLoss(tf.keras.layers.Layer):
 
-    def __init__(self, n_classes, emb_size, m=0.5, s=64., **kwargs):
+    def __init__(self, n_classes, m=0.5, s=64., **kwargs):
         self.num_classes = n_classes
-        self.emb_size = emb_size
         self.m = m
         self.s = s
         super(ArcLoss, self).__init__(**kwargs)
@@ -46,7 +45,7 @@ class ArcLoss(tf.keras.layers.Layer):
     def build(self, input_shape):
         # Create a weight variable for this layer.
         self.kernel = self.add_weight(name='kernel',
-                                      shape=(self.emb_size, self.num_classes),
+                                      shape=(input_shape[0][-1], self.num_classes),
                                       initializer=tf.random_normal_initializer(stddev=0.01),
                                       trainable=True)
         # input_shape[0] contains the batch
@@ -78,7 +77,7 @@ class ArcLoss(tf.keras.layers.Layer):
 
     def get_config(self):
         config = super(ArcLoss, self).get_config()
-        config.update({'num_classes': self.num_classes, 'emb_size': self.emb_size, 'm': self.m, 's': self.s})
+        config.update({'num_classes': self.num_classes, 'm': self.m, 's': self.s})
         return config
 
     def compute_output_shape(self, input_shape):
@@ -99,15 +98,20 @@ if data_format == 'channels_first':
     x_train = x_train.reshape(x_train.shape[0], 1, img_rows, img_cols)
     x_test = x_test.reshape(x_test.shape[0], 1, img_rows, img_cols)
     input_shape = (1, img_rows, img_cols)
+    axis = (2, 3)
 else:
     x_train = x_train.reshape(x_train.shape[0], img_rows, img_cols, 1)
     x_test = x_test.reshape(x_test.shape[0], img_rows, img_cols, 1)
     input_shape = (img_rows, img_cols, 1)
+    axis = (1, 2)
 
 x_train = x_train.astype('float32')
 x_test = x_test.astype('float32')
-x_train = tf.keras.applications.vgg16.preprocess_input(x_train, mode='tf')
-x_test = tf.keras.applications.vgg16.preprocess_input(x_test, mode='tf')
+# global standardizing
+x_train_mean = np.mean(x_train)
+x_train_std = np.std(x_train)
+x_train = (x_train - x_train_mean) / x_train_std
+x_test = (x_test - x_train_mean) / x_train_std
 print('x_train shape:', x_train.shape)
 print(x_train.shape[0], 'train samples')
 print(x_test.shape[0], 'test samples')
@@ -124,10 +128,9 @@ x = base_model.output
 if params.use_arcloss:
     x = tf.keras.layers.Flatten()(x)
     x = tf.keras.layers.Dense(params.embedding_size, activation='relu', name='feats0')(x)
-    x = tf.keras.layers.Dense(params.embedding_size, activation='relu', name='features')(x)
+    x = tf.keras.layers.Dense(params.embedding_size, name='features')(x)
     aux_input = tf.keras.Input(shape=(params.num_classes,))
-    predictions = ArcLoss(n_classes=params.num_classes, emb_size=params.embedding_size, name='arclosslayer')(
-        [x, aux_input])
+    predictions = ArcLoss(n_classes=params.num_classes, name='arclosslayer')([x, aux_input])
     predictions = tf.keras.activations.softmax(predictions)
     model = tf.keras.models.Model(inputs=[base_model.input, aux_input], outputs=predictions)
 else:
@@ -180,6 +183,7 @@ print('Test accuracy:', score[1])
 # make the predictions in test images and write .tsv files
 side_model = tf.keras.models.Model(inputs=model.input, outputs=model.get_layer('features').output)
 feats = side_model.predict(x_test_inps)
+feats /= np.linalg.norm(feats, axis=1, keepdims=True)
 
 out_v = io.open('logs_mnist/vecs.tsv', 'w', encoding='utf-8')
 out_m = io.open('logs_mnist/meta.tsv', 'w', encoding='utf-8')
