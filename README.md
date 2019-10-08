@@ -28,7 +28,7 @@ For embeddings visualization upload the two .tsv files generated under "logs_mni
 
 2D Embedding visualization(PCA) with softmax training             |  2D Embedding visualization(PCA) with arcloss + softmax training
 :-------------------------:|:-------------------------:
-![](tmp/softmaximg.png)  |  ![](tmp/arclossimg.png)
+![](tmp/softmaximg1.png)  |  ![](tmp/arclossimg1.png)
 
 
 ### Resources ###
