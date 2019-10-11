@@ -5,9 +5,9 @@
   "num_classes": 10,
   "embedding_size": 512,
   "epochs": 15,
-  "arc_m": 0.5,
-  "arc_s": 64.0,
+  "m": 0.5,
+  "s": 64.0,
   "log_dir": "logs_mnist",
-  "use_arcloss": true,
+  "use_modified_softmax": true,
   "fine_tune": false
 }

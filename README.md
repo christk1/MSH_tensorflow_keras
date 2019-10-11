@@ -1,21 +1,21 @@
-# Additive Angular Margin Loss #
+# Modification of SoftMax to distribute features on a hypersphere #
 
-Additive Angular Margin Loss (arcloss) used in MNIST dataset for the porpose of showing the difference in embeddings
-topology between training with softmax and softmax along with arcloss.
+VGG16 Training using MNIST dataset to show the difference in feature
+PCA visualization between SoftMax and modified SoftMax.
 
 ##### Versions for Tensorflow 1.14 and 2.0 #####
 
 ### Features: ###
-1. softmax training
-2. arcloss+softmax training
-3. fine-tuning of softmax with arcloss+softmax
+1. SoftMax training
+2. modified SoftMax training
+3. fine-tuning of SoftMax with modified SoftMax
 4. Tensorboard visualizations
 
 ##### Tensorflow 1.14: #####
 ```
 python3 mnist.py
 ```
-Visualization of scalars and embeddings using:
+Visualization of scalars and features using:
 ```tensorboard --logdir path/to/logs_mnist```
 ##### Tensorflow 2.0: #####
 ```
@@ -24,11 +24,11 @@ python3 mnist.py
 Visualization of scalars using: 
 ```tensorboard --logdir path/to/logs_mnist```
 
-For embeddings visualization upload the two .tsv files generated under "logs_mnist" directory to [Embedding Projector](https://projector.tensorflow.org/)
+For feature visualization upload the two .tsv files generated under "logs_mnist" directory to [Embedding Projector](https://projector.tensorflow.org/)
 
-2D Embedding visualization(PCA) with softmax training             |  2D Embedding visualization(PCA) with arcloss + softmax training
+2D Feature visualization(PCA) with SoftMax training             |  2D Feature visualization(PCA) with modified SoftMax training
 :-------------------------:|:-------------------------:
-![](tmp/softmaximg1.png)  |  ![](tmp/arclossimg1.png)
+![](tmp/softmaximg1.png)  |  ![](tmp/Msoftmax.png)
 
 
 ### Resources ###

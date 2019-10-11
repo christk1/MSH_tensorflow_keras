@@ -35,13 +35,13 @@ with open("epochs_ckpts.txt", "w") as f:
     f.write(str(epoch_write))
 
 
-class ArcLoss(tf.keras.layers.Layer):
+class MSoftMaxLayer(tf.keras.layers.Layer):
 
     def __init__(self, n_classes, m=0.5, s=64., **kwargs):
         self.num_classes = n_classes
         self.m = m
         self.s = s
-        super(ArcLoss, self).__init__(**kwargs)
+        super(MSoftMaxLayer, self).__init__(**kwargs)
 
     def build(self, input_shape):
         # Create a weight variable for this layer.
@@ -50,7 +50,7 @@ class ArcLoss(tf.keras.layers.Layer):
                                       initializer=tf.random_normal_initializer(stddev=0.01),
                                       trainable=True)
         # input_shape[0] contains the batch
-        super(ArcLoss, self).build(input_shape)  # Be sure to call this at the end
+        super(MSoftMaxLayer, self).build(input_shape)  # Be sure to call this at the end
 
     def call(self, inps):
         # emb (N x embs), labels (N, 10) = labels one hot
@@ -78,7 +78,7 @@ class ArcLoss(tf.keras.layers.Layer):
         return fc7
 
     def get_config(self):
-        config = super(ArcLoss, self).get_config()
+        config = super(MSoftMaxLayer, self).get_config()
         config.update({'num_classes': self.num_classes, 'm': self.m, 's': self.s})
         return config
 
@@ -125,12 +125,12 @@ base_model = tf.keras.applications.VGG16(input_tensor=input_tensor, include_top=
 
 x = base_model.output
 
-if params.use_arcloss:
+if params.use_modified_softmax:
     x = tf.keras.layers.Flatten()(x)
     x = tf.keras.layers.Dense(params.embedding_size, activation='relu', name='feats0')(x)
     x = tf.keras.layers.Dense(params.embedding_size, name='features')(x)
     aux_input = tf.keras.Input(shape=(params.num_classes,))
-    predictions = ArcLoss(n_classes=params.num_classes, m=params.arc_m, s=params.arc_s, name='arclosslayer')(
+    predictions = MSoftMaxLayer(n_classes=params.num_classes, m=params.m, s=params.s, name='MSoftMaxLayer')(
         [x, aux_input])
     model = tf.keras.models.Model(inputs=[base_model.input, aux_input], outputs=predictions)
 else:
@@ -160,7 +160,7 @@ model.compile(loss=tf.keras.losses.categorical_crossentropy,
 for i, layer in enumerate(model.layers):
     print(i, layer.name)
 
-if params.use_arcloss:
+if params.use_modified_softmax:
     x_inps = [x_train, y_train_cat]
     x_test_inps = [x_test, y_test_cat]
 else:
