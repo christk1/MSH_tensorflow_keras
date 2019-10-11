@@ -5,7 +5,7 @@ PCA visualization between SoftMax and modified SoftMax.
 
 ##### Versions for Tensorflow 1.14 and 2.0 #####
 
-### Features: ###
+### Contents: ###
 1. SoftMax training
 2. modified SoftMax training
 3. fine-tuning of SoftMax with modified SoftMax
