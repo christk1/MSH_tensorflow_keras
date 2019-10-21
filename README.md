@@ -1,4 +1,4 @@
-# Modification of SoftMax to distribute features on a hypersphere #
+# Modification of SoftMax layer to distribute features on a hypersphere #
 
 VGG16 Training using MNIST dataset to show the difference in feature
 PCA visualization between SoftMax and modified SoftMax.
