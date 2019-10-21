@@ -1,5 +1,5 @@
 # Modification of SoftMax layer to distribute features on a hypersphere #
-
+Tutorial: [Medium Story](https://towardsdatascience.com/enhancing-the-power-of-softmax-for-image-classification-4f8f85141739)
 VGG16 Training using MNIST dataset to show the difference in feature
 PCA visualization between SoftMax and modified SoftMax.
 
